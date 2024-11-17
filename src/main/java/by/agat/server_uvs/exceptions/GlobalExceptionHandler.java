@@ -1,7 +1,7 @@
 package by.agat.server_uvs.exceptions;
 
-import com.agat.server_epu.exceptions.httpserver.AppError;
-import com.agat.server_epu.exceptions.httpserver.ResourceNotFoundException;
+import by.agat.server_uvs.exceptions.httpserver.AppError;
+import by.agat.server_uvs.exceptions.httpserver.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

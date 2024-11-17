@@ -47,12 +47,12 @@ public class Packed {
 
     private static Date byteToDateTime(byte year, byte month, byte day, byte hour, byte minute, byte second) {
         Calendar calendar = new GregorianCalendar(
-                (2000 + byteToIntDate(year)),
-                (byteToIntDate(month) - 1), // 1...12 -> 0...11
-                (byteToIntDate(day)),
-                byteToIntDate(hour),
-                byteToIntDate(minute),
-                byteToIntDate(second));
+                (2000 + year),
+                ((month) - 1), // 1...12 -> 0...11
+                ((day)),
+                (hour),
+                (minute),
+                (second));
         return calendar.getTime();
     }
 

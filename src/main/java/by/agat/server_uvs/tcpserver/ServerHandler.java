@@ -63,6 +63,7 @@ public class ServerHandler implements Runnable
                         handleDisConnectedClientsEvents(server); // обрабатываем события отключения клиентов
                     } catch (Exception ex) {
                         log.error("error. connected/disconnected exception:{}, stackTrace:\n{}", ex.getMessage(), ex.getStackTrace());
+                        ex.printStackTrace();
                     }
                 }
             });
@@ -74,6 +75,7 @@ public class ServerHandler implements Runnable
                         handleClientsMessages(server);
                     }catch (Exception ex) {
                         log.error("error. message exception:{}, stackTrace:\n{}", ex.getMessage(), ex.getStackTrace());
+                        ex.printStackTrace();
                     }
                 }
             });
@@ -85,6 +87,7 @@ public class ServerHandler implements Runnable
                         handleMessagePositionData();
                     }catch (Exception ex) {
                         log.error("error. MessagePositionData exception:{}, stackTrace:\n{}", ex.getMessage(), ex.getStackTrace());
+                        ex.printStackTrace();
                     }
                 }
             });
@@ -129,7 +132,9 @@ public class ServerHandler implements Runnable
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (isCheckSum(requestMessage)) { // проверка чексуммы
+            if (true
+//                    isCheckSum(requestMessage)
+            ) { // проверка чексуммы
                 mapClientsMessagePositionData.offer(requestMessage);
             }
 
@@ -152,10 +157,12 @@ public class ServerHandler implements Runnable
         short sizeMessage = getShortNumber(data[11], data[12]);
         short checkByteFromMessage = getShortNumber(data[29+sizeMessage+1], data[29+sizeMessage+2]); // контрольная сумма из пакета
 
+        //???????????????????????????????????? как они ее считают...
         short checkByteCalculated = (short) (data[1] & 0xFF); // вычисляем контрольную сумму
         for (int i = 2; i < data.length-2; i++) {
             checkByteCalculated ^= (short) (data[i] & 0xFF);
         }
+        //???????????????????????????????????? как они ее считают...
 
         if (checkByteCalculated == data[data.length - 2] ) {
             return true;

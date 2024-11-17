@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
 
-    private UvsDataService uvsDataService;
+    private final UvsDataService uvsDataService;
 
     //echo//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @GetMapping("/echo/{echo}")
