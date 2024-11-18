@@ -19,6 +19,10 @@ import java.util.Date;
 public class UvsData {
 
     @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "vin")
     private String VIN;
 
@@ -26,7 +30,7 @@ public class UvsData {
     private Date dateTime;
 
     @Column(name = "typeMessage")
-    private Short typeMessage;
+    private Integer typeMessage;
 
 //    @Lob
 //    @Column(name = "dataMessage")

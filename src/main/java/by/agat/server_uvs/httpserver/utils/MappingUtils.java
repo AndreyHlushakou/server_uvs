@@ -1,6 +1,7 @@
 package by.agat.server_uvs.httpserver.utils;
 
-import by.agat.server_uvs.httpserver.dto.DataMessageActiveError;
+import by.agat.server_uvs.httpserver.dto.DM1;
+import by.agat.server_uvs.httpserver.dto.DataMessageActiveTroubles;
 import by.agat.server_uvs.httpserver.dto.DataMessageCoord;
 import by.agat.server_uvs.httpserver.dto.UvsDataDTO;
 import by.agat.server_uvs.httpserver.entities.UvsData;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Service
 public class MappingUtils {
@@ -26,47 +26,93 @@ public class MappingUtils {
                 );
     }
 
-    public List<UvsDataDTO> mapToListPositionDataDTO(List<UvsData> uvsDataList) {
-        List<UvsDataDTO> positionDataDTOList = new ArrayList<>();
-        for (UvsData positionData : uvsDataList) {
-            positionDataDTOList.add(
-                    mapToPositionDataDTO(positionData)
+    public List<UvsDataDTO> mapToListUvsDataDTO(List<UvsData> uvsDataList) {
+        List<UvsDataDTO> uvsDataDTOList = new ArrayList<>();
+        for (UvsData uvsData : uvsDataList) {
+            uvsDataDTOList.add(
+                    mapToUvsDataDTO(uvsData)
             );
         }
-        return positionDataDTOList;
+        return uvsDataDTOList;
     }
 
-    private UvsDataDTO mapToPositionDataDTO(UvsData positionData) {
+    private UvsDataDTO mapToUvsDataDTO(UvsData uvsData) {
         UvsDataDTO uvsDataDTO = new UvsDataDTO()
-                .setVIN(positionData.getVIN())
-                .setDateTime(positionData.getDateTime())
-                .setTypeMessage(positionData.getTypeMessage());
+                .setVIN(uvsData.getVIN())
+                .setDateTime(uvsData.getDateTime())
+                .setTypeMessage(
+                        String.format("%04X", uvsData.getTypeMessage())
+                );
 
+        byte[] dataMessage = Base64.getDecoder().decode(uvsData.getDataMessage());
 
-        return switch (positionData.getTypeMessage()) {
-            case 0x0101 -> uvsDataDTO.setDataMessage(getDataMessageCoord(positionData.getDataMessage()));
-            case 0x0102 -> uvsDataDTO.setDataMessage(getDataMessageActiveError(positionData.getDataMessage()));
+        return switch (uvsData.getTypeMessage()) {
+            case 0x0101 -> uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
+            case 0x0102 -> uvsDataDTO.setDataMessage(getDataMessageActiveError(dataMessage));
             default -> uvsDataDTO;
         };
 
     }
 
-    private DataMessageCoord getDataMessageCoord(String dataMessageS) {
-        byte[] dataMessage = Base64.getDecoder().decode(dataMessageS);
-        int latitude  = ((dataMessage[0] & 0xFF) <<24) | ((dataMessage[1] & 0xFF) <<16) | ((dataMessage[2] & 0xFF) <<8) | ((dataMessage[3] & 0xFF));
-        int longitude = ((dataMessage[4] & 0xFF) <<24) | ((dataMessage[5] & 0xFF) <<16) | ((dataMessage[6] & 0xFF) <<8) | ((dataMessage[7] & 0xFF));
+    private DataMessageCoord getDataMessageCoord(byte[] dataMessage) {
+        //test coord
+//        long lat1 = dataMessage[0] & 0xFF;
+//        long lon1 = dataMessage[4] & 0xFF;
+//
+//        long lat2 = (dataMessage[1] & 0xFF) << 8;
+//        long lon2 = (dataMessage[5] & 0xFF) << 8;
+//
+//        long lat3 = (dataMessage[2] & 0xFF) << 16;
+//        long lon3 = (dataMessage[6] & 0xFF) << 16;
+//
+//        long lat4 = (long) (dataMessage[3] & 0xFF) << 24;
+//        long lon4 = (long) (dataMessage[7] & 0xFF) << 24;
+//
+//        long lat5 = lat4 | lat3 | lat2 | lat1;
+//        long lon5 = lon4 | lon3 | lon2 | lon1;
+//
+//        double lat6 = (double) lat5 / 10_000_000;
+//        double lon6 = (double) lon5 / 10_000_000;
+//
+//        double latitude  = lat6 + 210;
+//        double longitude = lon6 + 210;
+//
+//        System.out.println();
+//        System.out.printf("1: lat:0x%X lon:0x%X\n", lat1, lon1);
+//        System.out.printf("2: lat:0x%X lon:0x%X\n", lat2, lon2);
+//        System.out.printf("3: lat:0x%X lon:0x%X\n", lat3, lon3);
+//        System.out.printf("4: lat:0x%X lon:0x%X\n", lat4, lon4);
+//        System.out.printf("5: lat:0x%X lon:0x%X\n", lat5, lon5);
+//        System.out.printf("6: lat:%f lon:%f\n", lat6, lon6);
+//        System.out.printf("0: lat:%f lon:%f", latitude, longitude);
+
+        double latitude  = (double) (((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) / 10_000_000;
+        double longitude = (double) (((long) (dataMessage[7] & 0xFF) << 24) | ((dataMessage[6] & 0xFF) << 16) | ((dataMessage[5] & 0xFF) << 8) | (dataMessage[4] & 0xFF)) / 10_000_000;
+
         return new DataMessageCoord()
                 .setLatitude(latitude)
                 .setLongitude(longitude);
     }
 
-    private DataMessageActiveError getDataMessageActiveError(String dataMessageS) {
-        byte[] bytes = Base64.getDecoder().decode(dataMessageS);
-        Byte[] dataMessage = IntStream.range(0, bytes.length)
-                .mapToObj(i -> bytes[i])
-                .toArray(Byte[]::new);
-        return new DataMessageActiveError()
-                .setActiveErrors(dataMessage);
+    private DataMessageActiveTroubles getDataMessageActiveError(byte[] dataMessage) {
+        List<DM1> dm1List = new ArrayList<>();
+        for (int i = 0; i < dataMessage.length; i += 4) {
+            int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
+            int fmi = dataMessage[i+2] & 0xFF;
+            int cm_oc = dataMessage[i+3] & 0xFF;
+
+            dm1List.add(
+                    new DM1()
+                    .setSPN(spn)
+                    .setFMI(fmi)
+                    .setCM_OC(cm_oc)
+            );
+        }
+        return new DataMessageActiveTroubles()
+                .setActiveTroubles(dm1List);
+
+        //spn 16-5655
     }
+
 
 }

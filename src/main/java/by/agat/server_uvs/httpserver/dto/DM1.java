@@ -11,6 +11,8 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessageActiveError extends DataMessage{
-    private Byte[] ActiveErrors;
+public class DM1 {
+    private Integer SPN;
+    private Integer FMI;
+    private Integer CM_OC;
 }

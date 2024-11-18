@@ -13,8 +13,8 @@ public class Packed {
 
     private final String head;
     private final Date dateTime;
-    private final short typeMessage;
-    private final short sizeMessage;
+    private final int typeMessage;
+    private final int sizeMessage;
     private final String VIN;
     private final byte[] dataMessage;
 //    private final short checkout;
@@ -23,14 +23,14 @@ public class Packed {
         this(
                 getString(data[0], data[1], data[2]), //head
                 byteToDateTime(data[3], data[4], data[5], data[6], data[7], data[8]), //dateTime
-                getShortNumber(data[9], data[10]), //typeMessage
-                getShortNumber(data[11], data[12]), //sizeMessage
+                getUint_16Number(data[9], data[10]), //typeMessage
+                getUint_16Number(data[11], data[12]), //sizeMessage
                 getString(data[13], data[14], data[15], data[16], data[17], data[18],data[19], data[20], data[21],data[22], data[23], data[24],data[25], data[26], data[27], data[28], data[29]), // VIN 17 bytes
                 data
         );
     }
 
-    public Packed(String head, Date dateTime, short typeMessage, short sizeMessage, String VIN, byte[] data) {
+    public Packed(String head, Date dateTime, int typeMessage, int sizeMessage, String VIN, byte[] data) {
         this.head = head;
         this.dateTime = dateTime;
         this.typeMessage = typeMessage;
@@ -38,7 +38,12 @@ public class Packed {
         this.VIN = VIN;
 //        this.checkout = getShortNumber(data[29+sizeMessage+1], data[29+sizeMessage+2]);
 
-        this.dataMessage = Arrays.copyOfRange(data, 30, (30 + sizeMessage));
+        if (sizeMessage != 0) {
+            this.dataMessage = Arrays.copyOfRange(data, 30, (30 + sizeMessage));
+        }
+        else {
+            this.dataMessage = new byte[0];
+        }
     }
 
     private static String getString(byte ... data){
@@ -48,7 +53,7 @@ public class Packed {
     private static Date byteToDateTime(byte year, byte month, byte day, byte hour, byte minute, byte second) {
         Calendar calendar = new GregorianCalendar(
                 (2000 + year),
-                ((month) - 1), // 1...12 -> 0...11
+                ((month) - 1), // month in GregorianCalendar: 1...12 -> 0...11
                 ((day)),
                 (hour),
                 (minute),
@@ -56,12 +61,8 @@ public class Packed {
         return calendar.getTime();
     }
 
-    private static int byteToIntDate(byte data) {
-        return Integer.parseInt(String.format("%02X", data));
-    }
-
-    private static short getShortNumber(byte ... data) {
-        return (short) (((data[1] & 0xFF) << 8) | (data[0] & 0xFF));
+    private static int getUint_16Number(byte ... data) {
+        return ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
     }
 
 }

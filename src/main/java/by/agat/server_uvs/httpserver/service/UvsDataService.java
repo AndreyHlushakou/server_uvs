@@ -29,8 +29,8 @@ public class UvsDataService {
     }
 
     public List<UvsDataDTO> getAllDTOByVin(String vin) {
-        List<UvsData> positionDataList = getListByVin(vin);
-        return mappingUtils.mapToListPositionDataDTO(positionDataList);
+        List<UvsData> uvsDataList = getListByVin(vin);
+        return mappingUtils.mapToListUvsDataDTO(uvsDataList);
     }
     public List<UvsData> getListByVin(String vin) {
         return uvsDataRepository.findAllByVIN(vin);

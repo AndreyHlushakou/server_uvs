@@ -6,16 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Accessors(chain = true)
-public class UvsDataDTO {
-    private String VIN;
-    private Date dateTime;
-    private String typeMessage;
-    private DataMessage dataMessage;
+public class DataMessageActiveTroubles extends DataMessage{
+    private List<DM1> ActiveTroubles;
 }
