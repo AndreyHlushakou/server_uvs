@@ -1,4 +1,4 @@
-package by.agat.server_uvs.httpserver.dto;
+package by.agat.server_uvs.httpserver.dto.data_message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DM1 {
+public class DM2 {
     private Integer SPN;
     private Integer FMI;
     private Integer CM_OC;

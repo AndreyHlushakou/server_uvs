@@ -1,5 +1,6 @@
 package by.agat.server_uvs.httpserver.dto;
 
+import by.agat.server_uvs.httpserver.dto.data_message.DataMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,9 +1,7 @@
 package by.agat.server_uvs.httpserver.utils;
 
-import by.agat.server_uvs.httpserver.dto.DM1;
-import by.agat.server_uvs.httpserver.dto.DataMessageActiveTroubles;
-import by.agat.server_uvs.httpserver.dto.DataMessageCoord;
-import by.agat.server_uvs.httpserver.dto.UvsDataDTO;
+import by.agat.server_uvs.httpserver.dto.*;
+import by.agat.server_uvs.httpserver.dto.data_message.*;
 import by.agat.server_uvs.httpserver.entities.UvsData;
 import by.agat.server_uvs.tcpserver.packed_maz.Packed;
 import org.springframework.stereotype.Service;
@@ -49,12 +47,15 @@ public class MappingUtils {
         return switch (uvsData.getTypeMessage()) {
             case 0x0101 -> uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
             case 0x0102 -> uvsDataDTO.setDataMessage(getDataMessageActiveError(dataMessage));
+//            case 0x0103 -> uvsDataDTO.setDataMessage(getDataMessagePassiveError(dataMessage));
+//            case 0x0201 -> uvsDataDTO.setDataMessage();
             default -> uvsDataDTO;
         };
 
     }
 
     private DataMessageCoord getDataMessageCoord(byte[] dataMessage) {
+
         //test coord
 //        long lat1 = dataMessage[0] & 0xFF;
 //        long lon1 = dataMessage[4] & 0xFF;
@@ -71,23 +72,23 @@ public class MappingUtils {
 //        long lat5 = lat4 | lat3 | lat2 | lat1;
 //        long lon5 = lon4 | lon3 | lon2 | lon1;
 //
-//        double lat6 = (double) lat5 / 10_000_000;
-//        double lon6 = (double) lon5 / 10_000_000;
+//        long lat6  = lat5 - 2100_000_000;
+//        long lon6 = lon5 - 2100_000_000;
 //
-//        double latitude  = lat6 + 210;
-//        double longitude = lon6 + 210;
+//        double latitude = (double) lat6 / 10_000_000;
+//        double longitude = (double) lon6 / 10_000_000;
 //
 //        System.out.println();
-//        System.out.printf("1: lat:0x%X lon:0x%X\n", lat1, lon1);
-//        System.out.printf("2: lat:0x%X lon:0x%X\n", lat2, lon2);
-//        System.out.printf("3: lat:0x%X lon:0x%X\n", lat3, lon3);
-//        System.out.printf("4: lat:0x%X lon:0x%X\n", lat4, lon4);
-//        System.out.printf("5: lat:0x%X lon:0x%X\n", lat5, lon5);
-//        System.out.printf("6: lat:%f lon:%f\n", lat6, lon6);
+//        System.out.printf("1: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat1, lon1, lat1, lon1);
+//        System.out.printf("2: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat2, lon2, lat2, lon2);
+//        System.out.printf("3: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat3, lon3, lat3, lon3);
+//        System.out.printf("4: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat4, lon4, lat4, lon4);
+//        System.out.printf("5: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat5, lon5, lat5, lon5);
+//        System.out.printf("6: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat6, lon6, lat6, lon6);
 //        System.out.printf("0: lat:%f lon:%f", latitude, longitude);
 
-        double latitude  = (double) (((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) / 10_000_000;
-        double longitude = (double) (((long) (dataMessage[7] & 0xFF) << 24) | ((dataMessage[6] & 0xFF) << 16) | ((dataMessage[5] & 0xFF) << 8) | (dataMessage[4] & 0xFF)) / 10_000_000;
+        double latitude = (double) ((((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) - 2100_000_000) / 10_000_000;
+        double longitude = (double) ((((long) (dataMessage[7] & 0xFF) << 24) | ((dataMessage[6] & 0xFF) << 16) | ((dataMessage[5] & 0xFF) << 8) | (dataMessage[4] & 0xFF)) - 2100_000_000) / 10_000_000;
 
         return new DataMessageCoord()
                 .setLatitude(latitude)
@@ -112,6 +113,24 @@ public class MappingUtils {
                 .setActiveTroubles(dm1List);
 
         //spn 16-5655
+    }
+
+    private DataMessagePassiveTroubles getDataMessagePassiveError(byte[] dataMessage) {
+        List<DM2> dm2List = new ArrayList<>();
+        for (int i = 0; i < dataMessage.length; i += 4) {
+            int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
+            int fmi = dataMessage[i+2] & 0xFF;
+            int cm_oc = dataMessage[i+3] & 0xFF;
+
+            dm2List.add(
+                    new DM2()
+                            .setSPN(spn)
+                            .setFMI(fmi)
+                            .setCM_OC(cm_oc)
+            );
+        }
+        return new DataMessagePassiveTroubles()
+                .setPassiveTroubles(dm2List);
     }
 
 
