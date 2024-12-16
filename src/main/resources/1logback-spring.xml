@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />   <!-- эти 2 инклюда нужны для вывода лога как в консоль так и в лог файл-->
+<!--    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />-->
+
+    <variable name="LOG" value="log"/>
+    <variable name="PATTERN" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}  %-5level ${PID} --- [%thread] %logger{36} : %msg%n"/>
+    <variable name="MAX_FILE_SIZE" value="500KB"/>
+
+
+    <variable name="PATH" value="com.agat.server_epu"/>
+    <variable name="HTTP_SERVER_LOG" value="${LOG}/http_server_log"/>
+    <appender name="FILE_HTTP_SERVER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${HTTP_SERVER_LOG}/http_server.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${HTTP_SERVER_LOG}/archived/http_server_%d/http_server_%i.log</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+    <logger name="${PATH}.httpserver" level="INFO">
+        <appender-ref ref="FILE_HTTP_SERVER" />
+    </logger>
+
+
+    <variable name="TCP_SERVER_LOG" value="${LOG}/tcp_server_log"/>
+    <appender name="FILE_TCP_SERVER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${TCP_SERVER_LOG}/tsp_server.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${TCP_SERVER_LOG}/archived/tcp_server_%d/tcp_server_%i.log</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+    <logger name="${PATH}.tcpserver" level="INFO">
+        <appender-ref ref="FILE_TCP_SERVER" />
+    </logger>
+
+
+    <variable name="ERROR_MESSAGES_LOG" value="${TCP_SERVER_LOG}/error_messages_log"/>
+    <appender name="FILE_ERROR_MESSAGES" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${ERROR_MESSAGES_LOG}/error_messages.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ERROR_MESSAGES_LOG}/archived/error_messages_%d/error_messages_%i.log</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+        </rollingPolicy>
+    </appender>
+    <logger name="${PATH}.exceptions.tcpserver.IncorrectMessageLog" level="INFO">
+        <appender-ref ref="FILE_ERROR_MESSAGES" />
+    </logger>
+
+
+
+    <variable name="All_LOG" value="${LOG}/all_log"/>
+    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${All_LOG}/all.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${All_LOG}/archived/all_%d/all_%i.log</fileNamePattern>   <!-- путь+имя(дата+номер инкремента) архивируемого лога-->
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>   <!-- максимальный размер при котором файл будет архивироваться-->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>    <!-- очистка истории лога на старте-->
+        </rollingPolicy>
+    </appender>
+<!--    <logger name="org.springframework.web" level="INFO"/>-->
+<!--    дефолтная реализация для вывода в консоль спринга (по дефолту уровень стоит инфо)-->
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE_ALL" />
+    </root>
+
+</configuration>

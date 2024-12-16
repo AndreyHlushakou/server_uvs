@@ -2,6 +2,7 @@ package by.agat.server_uvs.httpserver.utils;
 
 import by.agat.server_uvs.httpserver.dto.*;
 import by.agat.server_uvs.httpserver.dto.data_message.*;
+import by.agat.server_uvs.httpserver.entities.LogTcpEntity;
 import by.agat.server_uvs.httpserver.entities.UvsData;
 import by.agat.server_uvs.tcpserver.packed_maz.Packed;
 import org.springframework.stereotype.Service;
@@ -133,5 +134,22 @@ public class MappingUtils {
                 .setPassiveTroubles(dm2List);
     }
 
+
+    //Log to LogDTO/////////////////////////////////////////////////////////////////////////////////////////////////////
+    public List<LogTcpDTO> mapToListLogDTO(List<LogTcpEntity> logTcpList) {
+        List<LogTcpDTO> logTcpDTOList = new ArrayList<>();
+        for (LogTcpEntity logTcp : logTcpList) {
+            LogTcpDTO logTcpDTO = mapToLogDTO(logTcp);
+            logTcpDTOList.add(logTcpDTO);
+        }
+        return logTcpDTOList;
+    }
+
+    private LogTcpDTO mapToLogDTO(LogTcpEntity logTcp) {
+        return new LogTcpDTO()
+                .setDateTime(logTcp.getDateTime())
+                .setMessage(List.of(logTcp.getMessage().split("\n")))
+                ;
+    }
 
 }
