@@ -3,6 +3,7 @@ package by.agat.server_uvs.tcpserver;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static by.agat.server_uvs.exceptions.tcpserver.IncorrectMessageLog.incorrectMessageLogging;
@@ -28,11 +29,26 @@ public class MessageHandler {
         int checkByteCalculated =  Calc_Data_CS(data, data.length-2); // вычисляем контрольную сумму
         StringBuilder stringBuilder = new StringBuilder();
         if (checkByteCalculated == checkByteFromMessage ) {
-            return true;
+            int lengthMessageCalculated = data.length - 32;
+            int lengthMessageFromMessage = ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
+
+            if (lengthMessageCalculated == lengthMessageFromMessage) {
+                return true;
+            }
+            else {
+                errorMessage = stringBuilder.append("MESSAGE ERROR - too small:")
+                        .append("\ndata:").append(printData(data))
+                        .append("\nlengthMessageCalculated != LengthMessageFromMessage: ")
+                        .append(lengthMessageCalculated).append(" != ").append(lengthMessageFromMessage)
+                        .toString();
+                incorrectMessageLogging(errorMessage);
+                return false;
+            }
         }
         else {
             errorMessage = stringBuilder.append("MESSAGE ERROR - checkByte:")
-                    .append("\nCheckByteCalculated != CheckByteFromMessage: ")
+                    .append("\ndata:").append(printData(data))
+                    .append("\ncheckByteCalculated != checkByteFromMessage: ")
                     .append(String.format("0x%04X",checkByteCalculated))
                     .append(" != ")
                     .append(String.format("0x%04X",checkByteFromMessage))
@@ -104,10 +120,10 @@ public class MessageHandler {
     }
 
 
-    public String getDeviceId() {
+    public String getVIN() {
         StringBuilder output = new StringBuilder();
-        for (int i = 5; i <= 10; i++) {
-            output.append(String.format("%02X", data[i]));
+        for (int i = 13; i <= 29; i++) {
+            output.append((char) data[i]);
         }
         return String.valueOf(output);
     }
@@ -118,12 +134,13 @@ public class MessageHandler {
 
     public Date getDateTime() {
         Calendar calendar = new GregorianCalendar(
-                (2000 + byteToIntDate(data[35])),
-                (byteToIntDate(data[36])-1), // offset: 1...12 -> 0...11
-                (byteToIntDate(data[37])),
-                byteToIntDate(data[38]),
-                byteToIntDate(data[39]),
-                byteToIntDate(data[40]));
+                (2000 + byteToIntDate(data[3])),
+                (byteToIntDate(data[4])-1), // offset: 1...12 -> 0...11
+                byteToIntDate(data[5]),
+                byteToIntDate(data[6]),
+                byteToIntDate(data[7]),
+                byteToIntDate(data[8])
+        );
         return calendar.getTime();
     }
 

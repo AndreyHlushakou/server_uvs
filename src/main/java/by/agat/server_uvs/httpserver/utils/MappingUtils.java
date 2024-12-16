@@ -2,14 +2,22 @@ package by.agat.server_uvs.httpserver.utils;
 
 import by.agat.server_uvs.httpserver.dto.*;
 import by.agat.server_uvs.httpserver.dto.data_message.*;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0101.DataMessageCoord;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103.DM;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103.DataMessageActiveTroubles;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0201.DataMessageParams;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0201.Params;
 import by.agat.server_uvs.httpserver.entities.LogTcpEntity;
 import by.agat.server_uvs.httpserver.entities.UvsData;
+import by.agat.server_uvs.httpserver.utils.csv.MazParams;
 import by.agat.server_uvs.tcpserver.packed_maz.Packed;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import static by.agat.server_uvs.httpserver.utils.csv.DataFromCsv.mazParamsList;
 
 @Service
 public class MappingUtils {
@@ -46,11 +54,10 @@ public class MappingUtils {
         byte[] dataMessage = Base64.getDecoder().decode(uvsData.getDataMessage());
 
         return switch (uvsData.getTypeMessage()) {
-            case 0x0101 -> uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
-            case 0x0102 -> uvsDataDTO.setDataMessage(getDataMessageActiveError(dataMessage));
-//            case 0x0103 -> uvsDataDTO.setDataMessage(getDataMessagePassiveError(dataMessage));
-//            case 0x0201 -> uvsDataDTO.setDataMessage();
-            default -> uvsDataDTO;
+            case 0x0101 ->         uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
+            case 0x0102, 0x0103 -> uvsDataDTO.setDataMessage(getDataMessageActiveAndPassiveError(dataMessage));
+            case 0x0201 ->         uvsDataDTO.setDataMessage(getDataMessageParams(dataMessage));
+            default ->             uvsDataDTO;
         };
 
     }
@@ -88,50 +95,49 @@ public class MappingUtils {
 //        System.out.printf("6: latH:0x%X lonH:0x%X latD:%d lonH:%d\n", lat6, lon6, lat6, lon6);
 //        System.out.printf("0: lat:%f lon:%f", latitude, longitude);
 
-        double latitude = (double) ((((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) - 2100_000_000) / 10_000_000;
+        double latitude  = (double) ((((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) - 2100_000_000) / 10_000_000;
         double longitude = (double) ((((long) (dataMessage[7] & 0xFF) << 24) | ((dataMessage[6] & 0xFF) << 16) | ((dataMessage[5] & 0xFF) << 8) | (dataMessage[4] & 0xFF)) - 2100_000_000) / 10_000_000;
-
+        double speed     = (double) (((dataMessage[9] & 0xFF) << 9) | (dataMessage[8] & 0xFF)) / 256;
         return new DataMessageCoord()
                 .setLatitude(latitude)
-                .setLongitude(longitude);
+                .setLongitude(longitude)
+                .setSpeed(speed);
     }
 
-    private DataMessageActiveTroubles getDataMessageActiveError(byte[] dataMessage) {
-        List<DM1> dm1List = new ArrayList<>();
+    private DataMessageActiveTroubles getDataMessageActiveAndPassiveError(byte[] dataMessage) {
+        List<DM> dmList = new ArrayList<>();
         for (int i = 0; i < dataMessage.length; i += 4) {
             int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
             int fmi = dataMessage[i+2] & 0xFF;
             int cm_oc = dataMessage[i+3] & 0xFF;
 
-            dm1List.add(
-                    new DM1()
+            dmList.add(
+                    new DM()
                     .setSPN(spn)
                     .setFMI(fmi)
                     .setCM_OC(cm_oc)
             );
         }
         return new DataMessageActiveTroubles()
-                .setActiveTroubles(dm1List);
+                .setActiveTroubles(dmList);
 
         //spn 16-5655
     }
 
-    private DataMessagePassiveTroubles getDataMessagePassiveError(byte[] dataMessage) {
-        List<DM2> dm2List = new ArrayList<>();
-        for (int i = 0; i < dataMessage.length; i += 4) {
-            int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
-            int fmi = dataMessage[i+2] & 0xFF;
-            int cm_oc = dataMessage[i+3] & 0xFF;
+    private DataMessageParams getDataMessageParams(byte[] dataMessage) {
+        List<Params> paramsList = new ArrayList<>();
+        for (MazParams mazParams : mazParamsList) {
+            int i = mazParams.getOut_byte();
+            if (i < dataMessage.length) {
 
-            dm2List.add(
-                    new DM2()
-                            .setSPN(spn)
-                            .setFMI(fmi)
-                            .setCM_OC(cm_oc)
-            );
+                int bit = mazParams.getBit();
+            }
+
         }
-        return new DataMessagePassiveTroubles()
-                .setPassiveTroubles(dm2List);
+
+
+        return new DataMessageParams()
+                .setParamsList(paramsList);
     }
 
 

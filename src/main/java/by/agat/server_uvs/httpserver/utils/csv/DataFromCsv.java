@@ -1,4 +1,4 @@
-package by.agat.server_uvs.httpserver.dto.data_message;
+package by.agat.server_uvs.httpserver.utils.csv;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DM1 {
-    private Integer SPN;
-    private Integer FMI;
-    private Integer CM_OC;
+public class DataFromCsv {
+    public static List<MazParams> mazParamsList;
 }

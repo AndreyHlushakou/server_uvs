@@ -1,6 +1,6 @@
 package by.agat.server_uvs.httpserver.service;
 
-import by.agat.server_uvs.httpserver.dto.UvsDataDTO;
+import by.agat.server_uvs.httpserver.dto.data_message.UvsDataDTO;
 import by.agat.server_uvs.httpserver.entities.UvsData;
 import by.agat.server_uvs.httpserver.repository.UvsDataRepository;
 import  by.agat.server_uvs.httpserver.utils.MappingUtils;

@@ -1,7 +1,7 @@
 package by.agat.server_uvs.httpserver.controller;
 
 import by.agat.server_uvs.httpserver.controller.utils.Paths;
-import by.agat.server_uvs.httpserver.dto.UvsDataDTO;
+import by.agat.server_uvs.httpserver.dto.data_message.UvsDataDTO;
 import by.agat.server_uvs.httpserver.service.UvsDataService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

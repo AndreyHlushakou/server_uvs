@@ -1,5 +1,6 @@
-package by.agat.server_uvs.httpserver.dto.data_message;
+package by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103;
 
+import by.agat.server_uvs.httpserver.dto.data_message.DataMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,6 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessagePassiveTroubles extends DataMessage{
-    private List<DM2> PassiveTroubles = new ArrayList<>();
+public class DataMessagePassiveTroubles extends DataMessage {
+    private List<DM> PassiveTroubles = new ArrayList<>();
 }

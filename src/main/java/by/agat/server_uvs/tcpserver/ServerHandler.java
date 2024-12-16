@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -125,24 +126,32 @@ public class ServerHandler implements Runnable
             log.info(message); // выводим длину этого сообщения
 
             messageHandler.handling(requestMessage); // обрабатываем сообщение на правильность
-            boolean res = messageHandler.isRes(); // правильное ли пришло сообщение, чтобы на него отвечать
+            boolean res = messageHandler.isRes(); // правильное ли пришло сообщение
             if (res) {
                 queueUvsData.offer(requestMessage);
             }
-
             //В ОТВЕТ КЛИЕНТУ НИЧЕГО НЕ ОТПРАВЛЯЕМ!!!!!!!!!!
 
-            StringBuilder report = getReportAboutMessage(requestMessage);
-            log.info(report.toString()); // выводим сообщения принятые и отправленные
+            message = getReportAboutMessage(messageHandler);
+            addLodInDB(new LogTcpEntity(), message);
+            log.info(message); // выводим сообщения принятые
+
+            if (!messageHandler.isRes()) {
+                addLodInDB(new LogTcpEntity(), messageHandler.getErrorMessage());
+            }
         }
     }
 
-    private StringBuilder getReportAboutMessage(byte[] requestMessage) {
-        StringBuilder report = new StringBuilder("\nClientsMessage:\n");
-        for (byte datum : requestMessage) {
+    private String getReportAboutMessage(MessageHandler messageHandler) {
+        StringBuilder report = new StringBuilder()
+                .append("\nVIN              :").append(messageHandler.getVIN())
+                .append("\nDateTimeClient   :").append(new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(messageHandler.getDateTime()))
+//                .append("\nClientMessageStr :\n").append(new String(messageHandler.getData(), StandardCharsets.US_ASCII))
+                .append("\nClientMessageByte:\n");
+        for (byte datum : messageHandler.getData()) {
             report.append(String.format("%02X ", datum));
         }
-        return report;
+        return report.toString();
     }
 
     private void handleMessageUvsData() {

@@ -1,4 +1,4 @@
-package by.agat.server_uvs.httpserver.dto.data_message;
+package by.agat.server_uvs.httpserver.dto.data_message.data_0201;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessageCoord extends DataMessage{
-    private Double latitude;
-    private Double longitude;
+public class Params {
+    int bit;
+    int byte_;
 }
