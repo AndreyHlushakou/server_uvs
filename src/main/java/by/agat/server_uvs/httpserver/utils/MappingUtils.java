@@ -127,10 +127,38 @@ public class MappingUtils {
     private DataMessageParams getDataMessageParams(byte[] dataMessage) {
         List<Params> paramsList = new ArrayList<>();
         for (MazParams mazParams : mazParamsList) {
-            int i = mazParams.getOut_byte();
-            if (i < dataMessage.length) {
-
+            int byte_ = mazParams.getOut_byte();
+            if (byte_ < dataMessage.length) {
                 int bit = mazParams.getBit();
+                int size = mazParams.getSize();
+                int mask_head = switch (bit) {
+                    case 1 -> 0x7F; //0b01111111
+                    case 2 -> 0x3F; //0b00111111
+                    case 3 -> 0x1F; //0b00011111
+                    case 4 -> 0x0F; //0b00001111
+                    case 5 -> 0x07; //0b00000111
+                    case 6 -> 0x03; //0b00000011
+                    case 7 -> 0x01; //0b00000001
+                    default -> 0xFF; //0b11111111
+                };
+                int mask_tail = switch (size) {
+                    case 1 -> 0xFE; //0b11111110
+                    case 2 -> 0xFC; //0b11111100
+                    case 3 -> 0xF8; //0b11111000
+                    case 4 -> 0xF0; //0b11110000
+                    case 5 -> 0xE0; //0b11100000
+                    case 6 -> 0xC0; //0b11000000
+                    case 7 -> 0x80; //0b10000000
+                    default -> 0xFF; //0b11111111
+                };
+                long value = (dataMessage[byte_] & mask_head) & mask_tail;
+                paramsList.add(
+                        new Params()
+                                .setBit(bit)
+                                .setByte_(byte_)
+                                .setSize(size)
+                                .setValue(value)
+                );
             }
 
         }

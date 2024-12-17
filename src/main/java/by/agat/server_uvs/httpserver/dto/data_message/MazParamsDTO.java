@@ -1,4 +1,4 @@
-package by.agat.server_uvs.httpserver.dto.data_message.data_0201;
+package by.agat.server_uvs.httpserver.dto.data_message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +11,11 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Params {
-    int bit;
+public class MazParamsDTO{
+    String CAN_ID;
     int byte_;
+    int bit;
     int size;
-    long value;
+    int out_byte;
+    int out_bit;
 }
