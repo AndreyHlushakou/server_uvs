@@ -3,7 +3,6 @@ package by.agat.server_uvs.tcpserver;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static by.agat.server_uvs.exceptions.tcpserver.IncorrectMessageLog.incorrectMessageLogging;
@@ -18,6 +17,8 @@ public class MessageHandler {
 
     private String errorMessage;
 
+    private final static Set<Integer> typeMessageSet = new HashSet<>(List.of(0x0101, 0x0102, 0x0103, 0x0201));
+
     public void handling(byte[] requestMessage) {
         this.data = requestMessage;
         res = checkData(); // проверяем правильность пришедшего сообщения
@@ -28,20 +29,34 @@ public class MessageHandler {
 
         int checkByteCalculated =  Calc_Data_CS(data, data.length-2); // вычисляем контрольную сумму
         StringBuilder stringBuilder = new StringBuilder();
-        if (checkByteCalculated == checkByteFromMessage ) {
-            int lengthMessageCalculated = data.length - 32;
-            int lengthMessageFromMessage = ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
 
-            if (lengthMessageCalculated == lengthMessageFromMessage) {
-                return true;
-            }
-            else {
-                errorMessage = stringBuilder.append("MESSAGE ERROR - too small:")
+        if (checkByteCalculated == checkByteFromMessage ) {
+            int typeMessageFromMessage = ((data[9] & 0xFF) << 8) | data[10];
+
+            if (typeMessageSet.contains(typeMessageFromMessage)) {
+                int lengthMessageCalculated = data.length - 32;
+                int lengthMessageFromMessage = ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
+
+                if (lengthMessageCalculated == lengthMessageFromMessage) {
+                    return true;
+                }
+                else {
+                    errorMessage = stringBuilder.append("MESSAGE ERROR - too small:")
+                            .append("\ndata:").append(printData(data))
+                            .append("\nlengthMessageCalculated != LengthMessageFromMessage: ")
+                            .append(lengthMessageCalculated).append(" != ").append(lengthMessageFromMessage)
+                            .toString();
+                    incorrectMessageLogging(errorMessage);
+                    return false;
+                }
+            } else {
+                errorMessage = stringBuilder.append("MESSAGE ERROR - type not fount:")
                         .append("\ndata:").append(printData(data))
-                        .append("\nlengthMessageCalculated != LengthMessageFromMessage: ")
-                        .append(lengthMessageCalculated).append(" != ").append(lengthMessageFromMessage)
+                        .append("\ntypeMessageFromMessage: ")
+                        .append(typeMessageFromMessage)
                         .toString();
-                incorrectMessageLogging(errorMessage);
+
+                        incorrectMessageLogging(errorMessage);
                 return false;
             }
         }
@@ -128,8 +143,8 @@ public class MessageHandler {
         return String.valueOf(output);
     }
 
-    public int getMessageSerialNumber() {
-        return (data[11] & 0xFF) << 8 | (data[12] & 0xFF);
+    public int getSizeData() {
+        return ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
     }
 
     public Date getDateTime() {
@@ -146,5 +161,9 @@ public class MessageHandler {
 
     private static int byteToIntDate(byte data) {
         return Integer.parseInt(String.format("%02X", data), 16);
+    }
+
+    public String getType() {
+        return String.format("%04X", ((data[9] & 0xFF) << 8) | data[10]);
     }
 }

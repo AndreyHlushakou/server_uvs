@@ -32,10 +32,7 @@ public class UvsData {
     @Column(name = "typeMessage")
     private Integer typeMessage;
 
-//    @Lob
-//    @Column(name = "dataMessage")
-//    private Byte[] dataMessage;
-
+    @Lob
     @Column(name = "dataMessage")
-    private String dataMessage; //base64
+    private byte[] dataMessage; //base64
 }

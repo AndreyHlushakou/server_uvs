@@ -18,12 +18,12 @@ public class UvsDataController {
 
     private final UvsDataService uvsDataService;
 
-    @GetMapping("/data")
+    @GetMapping("")
     public List<List<UvsDataDTO>> getAllUvsData() {
         return uvsDataService.getAllDTO();
     }
 
-    @GetMapping("/data/{vin}")
+    @GetMapping("/{vin}")
     public List<UvsDataDTO> getPositionDataByVin(@PathVariable String vin) {
         return uvsDataService.getAllDTOByVin(vin);
     }

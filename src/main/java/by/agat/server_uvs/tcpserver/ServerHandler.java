@@ -145,6 +145,8 @@ public class ServerHandler implements Runnable
     private String getReportAboutMessage(MessageHandler messageHandler) {
         StringBuilder report = new StringBuilder()
                 .append("\nVIN              :").append(messageHandler.getVIN())
+                .append("\ntype message     :").append(messageHandler.getType())
+                .append("\nsize data message:").append(messageHandler.getSizeData())
                 .append("\nDateTimeClient   :").append(new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(messageHandler.getDateTime()))
 //                .append("\nClientMessageStr :\n").append(new String(messageHandler.getData(), StandardCharsets.US_ASCII))
                 .append("\nClientMessageByte:\n");

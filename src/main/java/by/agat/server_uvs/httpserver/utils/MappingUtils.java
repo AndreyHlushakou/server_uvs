@@ -14,7 +14,6 @@ import by.agat.server_uvs.tcpserver.packed_maz.Packed;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import static by.agat.server_uvs.httpserver.utils.csv.DataFromCsv.mazParamsList;
@@ -29,7 +28,7 @@ public class MappingUtils {
                 .setDateTime(packed.getDateTime())
                 .setTypeMessage(packed.getTypeMessage())
                 .setDataMessage(
-                        Base64.getEncoder().encodeToString(packed.getDataMessage())
+                        packed.getDataMessage()
                 );
     }
 
@@ -51,7 +50,7 @@ public class MappingUtils {
                         String.format("%04X", uvsData.getTypeMessage())
                 );
 
-        byte[] dataMessage = Base64.getDecoder().decode(uvsData.getDataMessage());
+        byte[] dataMessage = uvsData.getDataMessage();
 
         return switch (uvsData.getTypeMessage()) {
             case 0x0101 ->         uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
