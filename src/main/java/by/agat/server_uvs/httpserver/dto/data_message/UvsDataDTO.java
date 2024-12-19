@@ -17,5 +17,6 @@ public class UvsDataDTO {
     private String VIN;
     private Date dateTime;
     private String typeMessage;
+    private Integer sizeMessage;
     private DataMessage dataMessage;
 }

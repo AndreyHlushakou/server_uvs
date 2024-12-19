@@ -30,7 +30,10 @@ public class UvsData {
     private Date dateTime;
 
     @Column(name = "typeMessage")
-    private Integer typeMessage;
+    private String typeMessage;
+
+    @Column(name = "sizeMessage")
+    private Integer sizeMessage;
 
     @Lob
     @Column(name = "dataMessage")

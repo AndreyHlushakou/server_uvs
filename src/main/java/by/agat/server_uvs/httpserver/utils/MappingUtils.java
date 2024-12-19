@@ -26,10 +26,10 @@ public class MappingUtils {
         return new UvsData()
                 .setVIN(packed.getVIN())
                 .setDateTime(packed.getDateTime())
-                .setTypeMessage(packed.getTypeMessage())
-                .setDataMessage(
-                        packed.getDataMessage()
-                );
+                .setTypeMessage(String.format("%04X", packed.getTypeMessage()))
+                .setSizeMessage(packed.getSizeMessage())
+                .setDataMessage(packed.getDataMessage())
+                ;
     }
 
     public List<UvsDataDTO> mapToListUvsDataDTO(List<UvsData> uvsDataList) {
@@ -46,16 +46,16 @@ public class MappingUtils {
         UvsDataDTO uvsDataDTO = new UvsDataDTO()
                 .setVIN(uvsData.getVIN())
                 .setDateTime(uvsData.getDateTime())
-                .setTypeMessage(
-                        String.format("%04X", uvsData.getTypeMessage())
-                );
+                .setTypeMessage(uvsData.getTypeMessage())
+                .setSizeMessage(uvsData.getSizeMessage())
+                ;
 
         byte[] dataMessage = uvsData.getDataMessage();
 
         return switch (uvsData.getTypeMessage()) {
-            case 0x0101 ->         uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
-            case 0x0102, 0x0103 -> uvsDataDTO.setDataMessage(getDataMessageActiveAndPassiveError(dataMessage));
-            case 0x0201 ->         uvsDataDTO.setDataMessage(getDataMessageParams(dataMessage));
+            case "0101" ->         uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
+            case "0102", "0103" -> uvsDataDTO.setDataMessage(getDataMessageActiveAndPassiveError(dataMessage));
+            case "0201" ->         uvsDataDTO.setDataMessage(getDataMessageParams(dataMessage));
             default ->             uvsDataDTO;
         };
 
@@ -105,17 +105,21 @@ public class MappingUtils {
 
     private DataMessageActiveTroubles getDataMessageActiveAndPassiveError(byte[] dataMessage) {
         List<DM> dmList = new ArrayList<>();
-        for (int i = 0; i < dataMessage.length; i += 4) {
-            int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
-            int fmi = dataMessage[i+2] & 0xFF;
-            int cm_oc = dataMessage[i+3] & 0xFF;
+        try {
+            for (int i = 0; i < dataMessage.length; i += 4) {
+                int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
+                int fmi = dataMessage[i+2] & 0xFF;
+                int cm_oc = dataMessage[i+3] & 0xFF;
 
-            dmList.add(
-                    new DM()
-                    .setSPN(spn)
-                    .setFMI(fmi)
-                    .setCM_OC(cm_oc)
-            );
+                dmList.add(
+                        new DM()
+                                .setSPN(spn)
+                                .setFMI(fmi)
+                                .setCM_OC(cm_oc)
+                );
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            ex.printStackTrace();
         }
         return new DataMessageActiveTroubles()
                 .setActiveTroubles(dmList);
