@@ -3,6 +3,7 @@ package by.agat.server_uvs.tcpserver;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static by.agat.server_uvs.exceptions.tcpserver.IncorrectMessageLog.incorrectMessageLogging;
@@ -135,18 +136,6 @@ public class MessageHandler {
     }
 
 
-    public String getVIN() {
-        StringBuilder output = new StringBuilder();
-        for (int i = 13; i <= 29; i++) {
-            output.append((char) data[i]);
-        }
-        return String.valueOf(output);
-    }
-
-    public int getSizeData() {
-        return ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
-    }
-
     public Date getDateTime() {
         Calendar calendar = new GregorianCalendar(
                 (2000 + byteToIntDate(data[3])),
@@ -165,5 +154,14 @@ public class MessageHandler {
 
     public String getType() {
         return String.format("%04X", ((data[9] & 0xFF) << 8) | data[10]);
+    }
+
+    public int getSizeData() {
+        return ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
+    }
+
+    public String getVIN() {
+        byte[] vin = Arrays.copyOfRange(data, 13, 29);
+        return new String(vin, StandardCharsets.US_ASCII);
     }
 }

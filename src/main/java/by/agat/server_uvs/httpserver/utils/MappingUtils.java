@@ -26,7 +26,7 @@ public class MappingUtils {
         return new UvsData()
                 .setVIN(packed.getVIN())
                 .setDateTime(packed.getDateTime())
-                .setTypeMessage(String.format("%04X", packed.getTypeMessage()))
+                .setTypeMessage(packed.getTypeMessage())
                 .setSizeMessage(packed.getSizeMessage())
                 .setDataMessage(packed.getDataMessage())
                 ;
@@ -96,7 +96,7 @@ public class MappingUtils {
 
         double latitude  = (double) ((((long) (dataMessage[3] & 0xFF) << 24) | ((dataMessage[2] & 0xFF) << 16) | ((dataMessage[1] & 0xFF) << 8) | (dataMessage[0] & 0xFF)) - 2100_000_000) / 10_000_000;
         double longitude = (double) ((((long) (dataMessage[7] & 0xFF) << 24) | ((dataMessage[6] & 0xFF) << 16) | ((dataMessage[5] & 0xFF) << 8) | (dataMessage[4] & 0xFF)) - 2100_000_000) / 10_000_000;
-        double speed     = (double) (((dataMessage[9] & 0xFF) << 9) | (dataMessage[8] & 0xFF)) / 256;
+        double speed     = (double) (((dataMessage[9] & 0xFF) << 8) | (dataMessage[8] & 0xFF)) / 256;
         return new DataMessageCoord()
                 .setLatitude(latitude)
                 .setLongitude(longitude)
