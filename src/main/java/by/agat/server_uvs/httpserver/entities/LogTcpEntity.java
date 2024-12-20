@@ -16,7 +16,7 @@ import java.util.UUID;
 public class LogTcpEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private /*UUID*/Long  id;
 
     @Column(name="date_time")
     private Date dateTime;

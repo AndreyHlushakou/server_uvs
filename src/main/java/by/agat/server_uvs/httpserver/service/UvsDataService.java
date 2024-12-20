@@ -18,22 +18,34 @@ public class UvsDataService {
     private final UvsDataRepository uvsDataRepository;
     private final MappingUtils mappingUtils;
 
-    public List<List<UvsDataDTO>> getAllDTO() {
-        List<List<UvsDataDTO>> lists = new ArrayList<>();
-        List<String> listDistinctVin = getListDistinctVin();
-        for (String vin : listDistinctVin) {
-            List<UvsDataDTO> list = getAllDTOByVin(vin);
-            lists.add(list);
+    public List<UvsDataDTO> getAllDTOByVinAndTypeMessage(String vin, String typeMessage) {
+        List<UvsData> uvsDataList;
+        if (typeMessage == null && vin == null) {
+            uvsDataList = getList();
+        } else if (typeMessage == null) {
+            uvsDataList = getListByVin(vin);
+        } else if (vin == null) {
+            uvsDataList = getListByTypeMessage(typeMessage);
+        } else {
+            uvsDataList = getListByVinAndTypeMessage(vin, typeMessage);
         }
-        return lists;
-    }
-
-    public List<UvsDataDTO> getAllDTOByVin(String vin) {
-        List<UvsData> uvsDataList = getListByVin(vin);
         return mappingUtils.mapToListUvsDataDTO(uvsDataList);
     }
+
+    public List<UvsData> getList() {
+        return uvsDataRepository.findAll();
+    }
+
     public List<UvsData> getListByVin(String vin) {
         return uvsDataRepository.findAllByVIN(vin);
+    }
+
+    public List<UvsData> getListByTypeMessage(String typeMessage) {
+        return uvsDataRepository.findAllByTypeMessage(typeMessage);
+    }
+
+    public List<UvsData> getListByVinAndTypeMessage(String vin, String typeMessage) {
+        return uvsDataRepository.findAllByVINAndTypeMessage(vin, typeMessage);
     }
 
     public void saveInDB(UvsData uvsData) {
@@ -41,6 +53,6 @@ public class UvsDataService {
     }
 
     public List<String> getListDistinctVin() {
-        return uvsDataRepository.findDistinctByVIN();
+        return uvsDataRepository.findDistinctVIN();
     }
 }

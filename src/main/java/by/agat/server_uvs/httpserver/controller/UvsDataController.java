@@ -19,13 +19,23 @@ public class UvsDataController {
     private final UvsDataService uvsDataService;
 
     @GetMapping("")
-    public List<List<UvsDataDTO>> getAllUvsData() {
-        return uvsDataService.getAllDTO();
+    public List<UvsDataDTO> getAllUvsData() {
+        return uvsDataService.getAllDTOByVinAndTypeMessage(null, null);
     }
 
     @GetMapping("/{vin}")
     public List<UvsDataDTO> getPositionDataByVin(@PathVariable String vin) {
-        return uvsDataService.getAllDTOByVin(vin);
+        return uvsDataService.getAllDTOByVinAndTypeMessage(vin, null);
+    }
+
+    @GetMapping("/t/{typeMessage}")
+    public List<UvsDataDTO> getPositionDataByTypeMessage(@PathVariable String typeMessage) {
+        return uvsDataService.getAllDTOByVinAndTypeMessage(null, typeMessage);
+    }
+
+    @GetMapping("/{vin}/{typeMessage}")
+    public List<UvsDataDTO> getPositionDataByVinAndTypeMessage(@PathVariable String vin, @PathVariable String typeMessage) {
+        return uvsDataService.getAllDTOByVinAndTypeMessage(vin, typeMessage);
     }
 
     @GetMapping("/vin")
