@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-public interface LogTcpRepository extends JpaRepository<LogTcpEntity, Long> {
+public interface LogTcpRepository extends JpaRepository<LogTcpEntity, /*UUID*/Long> {
 
     @Query("SELECT l FROM LogTcpEntity l WHERE l.dateTime BETWEEN :dateFrom AND :dateTo") //(:dateFrom < pd.dateTime AND pd.dateTime < :dateTo)
     List<LogTcpEntity> findByDateTimeBetween(Date dateFrom, Date dateTo);

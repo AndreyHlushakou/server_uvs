@@ -21,7 +21,9 @@ public class UvsData {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private /*UUID*/Long id;
+    private Long id;
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private UUID id;
 
     @Column(name = "vin")
     private String VIN;

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UvsDataRepository extends JpaRepository<UvsData, Long> {
+public interface UvsDataRepository extends JpaRepository<UvsData, /*UUID*/Long> {
     @Query("SELECT DISTINCT a.VIN FROM UvsData a")
     List<String> findDistinctVIN();
 
