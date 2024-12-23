@@ -12,10 +12,10 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class MazParamsDTO{
-    String CAN_ID;
-    int byte_;
-    int bit;
-    int size;
-    int out_byte;
-    int out_bit;
+    private String CAN_ID;
+    private int byte_;
+    private int bit;
+    private int size;
+    private int out_byte;
+    private int out_bit;
 }

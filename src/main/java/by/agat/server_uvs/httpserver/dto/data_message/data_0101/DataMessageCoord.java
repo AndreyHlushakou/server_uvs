@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessageCoord extends DataMessage {
+public class DataMessageCoord implements DataMessage {
     private Double latitude;
     private Double longitude;
     private Double speed;

@@ -3,8 +3,7 @@ package by.agat.server_uvs.httpserver.utils;
 import by.agat.server_uvs.httpserver.dto.*;
 import by.agat.server_uvs.httpserver.dto.data_message.*;
 import by.agat.server_uvs.httpserver.dto.data_message.data_0101.DataMessageCoord;
-import by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103.DM;
-import by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103.DataMessageActiveTroubles;
+import by.agat.server_uvs.httpserver.dto.data_message.data_0102_0103.*;
 import by.agat.server_uvs.httpserver.dto.data_message.data_0201.DataMessageParams;
 import by.agat.server_uvs.httpserver.dto.data_message.data_0201.Params;
 import by.agat.server_uvs.httpserver.entities.LogTcpEntity;
@@ -53,10 +52,10 @@ public class MappingUtils {
         byte[] dataMessage = uvsData.getDataMessage();
 
         return switch (uvsData.getTypeMessage()) {
-            case "0101" ->         uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
-            case "0102", "0103" -> uvsDataDTO.setDataMessage(getDataMessageActiveAndPassiveError(dataMessage));
-            case "0201" ->         uvsDataDTO.setDataMessage(getDataMessageParams(dataMessage));
-            default ->             uvsDataDTO;
+            case "0101" -> uvsDataDTO.setDataMessage(getDataMessageCoord(dataMessage));
+            case "0102", "0103" -> uvsDataDTO.setDataMessage(getDataMessageError(dataMessage));
+            case "0201" -> uvsDataDTO.setDataMessage(getDataMessageParams(dataMessage));
+            default ->     uvsDataDTO;
         };
 
     }
@@ -103,26 +102,42 @@ public class MappingUtils {
                 .setSpeed(speed);
     }
 
-    private DataMessageActiveTroubles getDataMessageActiveAndPassiveError(byte[] dataMessage) {
-        List<DM> dmList = new ArrayList<>();
-        try {
-            for (int i = 0; i < dataMessage.length; i += 4) {
-                int spn = ((dataMessage[i] & 0xFF) << 8) | (dataMessage[i+1] & 0xFF);
-                int fmi = dataMessage[i+2] & 0xFF;
-                int cm_oc = dataMessage[i+3] & 0xFF;
+    private DataMessageTroubles getDataMessageError(byte[] dataMessage) {
+        int i = 0;
+        List<Trouble> troubleList = new ArrayList<>();
+//        try {
+            while (i < dataMessage.length-1) {
+                int err_cnt = dataMessage[i++];
+                int maz_source_address = dataMessage[i++];
+                int lamps_status = dataMessage[i++];
+                List<DM> listDM = new ArrayList<>();
 
-                dmList.add(
-                        new DM()
-                                .setSPN(spn)
-                                .setFMI(fmi)
-                                .setCM_OC(cm_oc)
+                for (int j = i; j < i+(err_cnt*4); j+=4) {
+                    int spn = ((dataMessage[j] & 0xFF) << 8) | (dataMessage[j+1] & 0xFF);
+                    int fmi = dataMessage[j+2] & 0xFF;
+                    int cm_oc = dataMessage[j+3] & 0xFF;
+
+                    listDM.add(
+                            new DM()
+                                    .setSPN(spn)
+                                    .setFMI(fmi)
+                                    .setCM_OC(cm_oc)
+                    );
+                }
+                i+=4*err_cnt;
+
+                troubleList.add(
+                        new Trouble()
+                                .setErr_cnt(err_cnt)
+                                .setMaz_source_address(maz_source_address)
+                                .setLamps_status(lamps_status)
+                                .setListDM(listDM)
                 );
             }
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            ex.printStackTrace();
-        }
-        return new DataMessageActiveTroubles()
-                .setActiveTroubles(dmList);
+//        } catch (Exception ignore) {
+//        }
+
+        return new DataMessageTroubles().setTroubles(troubleList);
 
         //spn 16-5655
     }

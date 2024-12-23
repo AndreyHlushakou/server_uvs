@@ -14,6 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessageParams extends DataMessage {
+public class DataMessageParams implements DataMessage {
     private List<Params> paramsList;
 }

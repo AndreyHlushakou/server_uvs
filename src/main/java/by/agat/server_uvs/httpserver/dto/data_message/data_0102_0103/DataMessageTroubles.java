@@ -14,6 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataMessageActiveTroubles extends DataMessage {
-    private List<DM> ActiveTroubles;
+public class DataMessageTroubles implements DataMessage {
+    private List<Trouble> troubles;
 }

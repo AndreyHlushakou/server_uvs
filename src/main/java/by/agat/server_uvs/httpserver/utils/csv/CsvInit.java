@@ -27,6 +27,9 @@ public class CsvInit {
     @Value("${path.maz.csv}")
     private String path;
 
+    @Value("${max.maz.params}")
+    private int max_maz_params;
+
 
     @PostConstruct
     public void init() {
@@ -46,7 +49,8 @@ public class CsvInit {
                 CSVReader csvReader = new CSVReaderBuilder(fileReader).build();
         ){
             String[] nextLine;
-            while ((nextLine = csvReader.readNext()) != null) {
+            int i = 0;
+            while (((nextLine = csvReader.readNext()) != null) && (i < max_maz_params)) {
                 String[] arrStr = nextLine[0].split(";");
                 long CAN_ID  = Long.parseLong(  arrStr[0], 16);
                 int byte_    = Integer.parseInt(arrStr[1], 10);
@@ -55,15 +59,16 @@ public class CsvInit {
                 int out_byte = Integer.parseInt(arrStr[4], 10);
                 int out_bit  = Integer.parseInt(arrStr[5], 10);
 
-                mazParamsList.add(
-                        new MazParams()
-                                .setCAN_ID(CAN_ID)
-                                .setByte_(byte_)
-                                .setBit(bit)
-                                .setSize(size)
-                                .setOut_byte(out_byte)
-                                .setOut_bit(out_bit)
-                );
+                MazParams mazParams = new MazParams()
+                        .setCAN_ID(CAN_ID)
+                        .setByte_(byte_)
+                        .setBit(bit)
+                        .setSize(size)
+                        .setOut_byte(out_byte)
+                        .setOut_bit(out_bit);
+
+                mazParamsList.add(mazParams);
+                i++;
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
