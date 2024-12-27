@@ -36,7 +36,7 @@ public class MessageHandler {
 
             if (typeMessageSet.contains(typeMessageFromMessage)) {
                 int lengthMessageCalculated = data.length - 32;
-                int lengthMessageFromMessage = ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
+                int lengthMessageFromMessage = ((data[11] & 0xFF) << 8) | (data[12] & 0xFF);
 
                 if (lengthMessageCalculated == lengthMessageFromMessage) {
                     return true;
@@ -157,7 +157,7 @@ public class MessageHandler {
     }
 
     public int getSizeData() {
-        return ((data[12] & 0xFF) << 8) | (data[11] & 0xFF);
+        return ((data[11] & 0xFF) << 8) | (data[12] & 0xFF);
     }
 
     public String getVIN() {
